@@ -87,7 +87,7 @@ define ["lib/leaflet","./coordinate","lib/jsbezier"], (L, Coordinate,jsBezier) -
 
             @canvas.lineCap = "round"
             @canvas.lineWidth = @lineWidth
-            percentDrawn = 0
+            percentDrawn = 0 
             drawTimeout = () =>
                 setTimeout () =>
                     @canvas.clearRect(0,0,@size.width,@size.height)

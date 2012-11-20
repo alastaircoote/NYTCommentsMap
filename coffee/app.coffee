@@ -14,4 +14,4 @@ requirejs ["map/mapdisplay","jquery"], (MapDisplay) ->
     require ["socketio"], (io) ->
         socket = io.connect('http://stream.local.dev:8100')
         socket.on "tweet", (tweet) ->
-            map.drawLine tweet.from, tweet.to
+            map.drawLine tweet.from, tweet.to 

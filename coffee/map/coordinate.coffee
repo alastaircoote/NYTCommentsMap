@@ -7,7 +7,7 @@ define [], () ->
             ys = 0
 
             xs = otherCoord.x - this.x
-            xs = xs * xs
+            xs = xs * xs 
 
             ys = otherCoord.y - this.y
             ys = ys * ys
