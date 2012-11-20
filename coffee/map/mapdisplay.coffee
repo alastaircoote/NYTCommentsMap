@@ -1,4 +1,4 @@
-define ["lib/leaflet","./linelayer"], (leaflet, LineLayer) ->
+define ["jslib/leaflet","./linelayer"], (leaflet, LineLayer) ->
     return class MapDisplay
         constructor: (target) ->
             console.log "hm"
@@ -8,7 +8,7 @@ define ["lib/leaflet","./linelayer"], (leaflet, LineLayer) ->
                maxZoom: 18
             console.log "hi"  
             tileLayer.addTo(@map)
-
+  
             @map.addLayer(new LineLayer(new L.LatLng(51.39216, -2.19939), new L.LatLng(40.68122, -73.97636)))
             @map.addLayer(new LineLayer(new L.LatLng(40.7, -74), new L.LatLng(26.7, 114)))
         drawLine: (from,to) =>
