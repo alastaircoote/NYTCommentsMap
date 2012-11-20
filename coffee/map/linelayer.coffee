@@ -93,7 +93,7 @@ define ["lib/leaflet","./coordinate","lib/jsbezier"], (L, Coordinate,jsBezier) -
                     @canvas.clearRect(0,0,@size.width,@size.height)
                     @doDraw(percentDrawn)
                     percentDrawn++
-                    if percentDrawn <= 100 then drawTimeout()
+                    if percentDrawn <= 200 then drawTimeout()
                 ,5
             drawTimeout()
 
@@ -122,13 +122,16 @@ define ["lib/leaflet","./coordinate","lib/jsbezier"], (L, Coordinate,jsBezier) -
                 percent = 100
                 @canvas.strokeStyle = "rgba(0, 0, 0, " + Math.round(10-startFrom / 10,2) / 10 + ")"
             startPoint = @points[startFrom]
-            
             @canvas.moveTo startPoint.x, startPoint.y
             @canvas.beginPath()
-            for x in [startFrom+1..percent]
+            for x in [startFrom...percent]
                 nextPoint = @points[x]
-                @canvas.lineTo nextPoint.x + (@lineWidth/2), nextPoint.y + @extraHeight + (@lineWidth/2)
-            for x in [percent..startFrom+1]
+                try 
+                    @canvas.lineTo nextPoint.x + (@lineWidth/2), nextPoint.y + @extraHeight + (@lineWidth/2)
+                catch error
+                    console.log @points.length,x
+                
+            for x in [percent...startFrom]
                 nextPoint = @secondLinePoints[x]
                 @canvas.lineTo nextPoint.x + (@lineWidth/2), nextPoint.y + @extraHeight + (@lineWidth/2)
             #console.log nextPoint
