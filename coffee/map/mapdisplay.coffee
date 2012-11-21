@@ -1,18 +1,22 @@
-define ["jslib/leaflet","./linelayer"], (leaflet, LineLayer) ->
+define ["jslib/leaflet", "./heatmaplayer"], (leaflet, HeatMapLayer) ->
     return class MapDisplay
         constructor: (target) ->
-            console.log "hm"
             @mapEl = target
-            @map = L.map(@mapEl[0]).setView([37, 0], 2);
+            @map = L.map(@mapEl[0])
             tileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-n7irpmld/{z}/{x}/{y}.png', 
                maxZoom: 18
-            console.log "hi"  
             tileLayer.addTo(@map)
-  
-            @map.addLayer(new LineLayer(new L.LatLng(51.39216, -2.19939), new L.LatLng(40.68122, -73.97636)))
-            @map.addLayer(new LineLayer(new L.LatLng(40.7, -74), new L.LatLng(26.7, 114)))
-        drawLine: (from,to) =>
-            Lfrom = new L.LatLng(from.lat,from.lng)
-            Lto = new L.LatLng(to.lat,to.lng)
-            layer = new LineLayer(Lfrom,Lto)
-            @map.addLayer(layer)
+
+           
+
+            sttileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-rjqv06av/{z}/{x}/{y}.png', 
+               maxZoom: 18
+            console.log sttileLayer
+            sttileLayer.addTo(@map)
+            @map.addLayer(new HeatMapLayer)
+
+            @map.fitBounds [[27.7, -126.8],[45.1, -60.8]]
+
+            
+
+        
