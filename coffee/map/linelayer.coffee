@@ -11,7 +11,7 @@ define ["jslib/leaflet","./coordinate","jslib/jsbezier"], (L, Coordinate,jsBezie
             map.getPanes().overlayPane.appendChild(@_el[0])
             map.on('viewreset', @onReset, this)
             @onReset()
- 
+  
         onRemove: () ->
             map.getPanes().overlayPane.removeChild(@_el[0])
             map.off('viewreset', @onReset, this)

@@ -5,7 +5,7 @@ define [], () ->
         distanceTo: (otherCoord) =>
             xs = 0
             ys = 0
-
+ 
             xs = otherCoord.x - this.x
             xs = xs * xs 
  
