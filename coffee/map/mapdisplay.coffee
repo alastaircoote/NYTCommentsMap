@@ -7,7 +7,7 @@ define ["jslib/leaflet", "./heatmaplayer"], (leaflet, HeatMapLayer) ->
                maxZoom: 18
             tileLayer.addTo(@map)
 
-            
+             
  
             sttileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-rjqv06av/{z}/{x}/{y}.png', 
                maxZoom: 18

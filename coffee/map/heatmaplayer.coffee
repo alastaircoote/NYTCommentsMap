@@ -28,7 +28,7 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
             
             @map.on "moveend", @onReset, this
             
- 
+  
         onRemove: () ->
             map.getPanes().overlayPane.removeChild(@_el[0])
             map.off('viewreset', @onReset, this)
@@ -59,6 +59,7 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
                 @_el.insertBefore($(@map.getPanes().tilePane).children().last())
                 @heatmap = heatmapFactory.create
                     element: @_el[0]
+                    radius:10
 
             start = new Date().valueOf()
             points = @points.map((p) =>
@@ -73,6 +74,7 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
             @heatmap.store.setDataSet
                 max:500
                 data: points
+
             ,false,colorize
             console.log new Date().valueOf() - start
 

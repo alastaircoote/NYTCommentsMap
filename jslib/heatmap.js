@@ -308,6 +308,7 @@
         },
         colorize: function(x, y){
                 // get the private variables
+                return;
                 var me = this,
                     width = me.get("width"),
                     radius = me.get("radius"),
@@ -362,11 +363,12 @@
                         bottom = bounds['b'];
                     }    
                 }
+                console.log(left,top,right,bottom)
                 start = new Date().valueOf()
-                image= me.get("actxData")
+                image = me.get("actxData")
                 if (!image){
                     image = actx.getImageData(left, top, right-left, bottom-top);
-                    me.set("actxData",image)
+                    
                 }
                 imageData = image.data;
                 length = imageData.length;
@@ -405,20 +407,21 @@
                 // after the manipulation process we have to set the manipulated data to the ImageData object
                 image.data = imageData;
                 ctx.putImageData(image, left, top);
-                
+                me.set("actxData",image)
                 console.log("put", new Date().valueOf() - start)
         },
         drawAlpha: function(x, y, count, colorize){
                 // storing the variables because they will be often used
+                console.log("drawAlpha")
                 var me = this,
                     radius = me.get("radius"),
-                    ctx = me.get("actx"),
+                    ctx = me.get("ctx"),
                     max = me.get("max"),
                     bounds = me.get("bounds"),
                     xb = x - (1.5 * radius) >> 0, yb = y - (1.5 * radius) >> 0,
                     xc = x + (1.5 * radius) >> 0, yc = y + (1.5 * radius) >> 0;
 
-                ctx.shadowColor = ('rgba(0,0,0,'+((count)?(count/me.store.max):'0.1')+')');
+                ctx.shadowColor = ('rgba(255,0,0,'+((count)?(count/me.store.max):'0.1')+')');
                 ctx.shadowOffsetX = 1000;
                 ctx.shadowOffsetY = 1000;
                 ctx.shadowBlur = 15;
