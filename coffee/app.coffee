@@ -9,7 +9,7 @@ requirejs.config
         "jslib/heatmap-leaflet":
             deps:["jslib/leaflet", "jslib/heatmap"]
     paths: 
-        "jquery":"//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min"
+        "jquery":"jslib/jquery-1.8.0"
    
 requirejs ["./js/map/mapdisplay","jquery"], (MapDisplay) ->
     map = new MapDisplay $("#map")

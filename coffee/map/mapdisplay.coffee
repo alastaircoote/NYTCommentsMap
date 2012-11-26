@@ -1,38 +1,52 @@
-define ["jslib/leaflet", "jslib/heatmap-leaflet"], (leaflet) ->
+define ["jslib/leaflet", "./heatmaptilelayer"], (leaflet,h) ->
     return class MapDisplay
         constructor: (target) ->
             @mapEl = target
-            @map = L.map(@mapEl[0])
+            @map = L.map @mapEl[0],
+                fadeAnimation:false
             tileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-n7irpmld/{z}/{x}/{y}.png', 
                maxZoom: 18
             tileLayer.addTo(@map)
 
              
  
-            sttileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-rjqv06av/{z}/{x}/{y}.png', 
-               maxZoom: 18
-            sttileLayer.addTo(@map)
+
 
             $.ajax
                 url: "dummydata/points.json"
                 success: (data) =>
                     points = JSON.parse(data)
                     
-                    heat = new L.TileLayer.HeatMap
-                        debug:true
-                        radius:15
+                    heat = new h
+                        data: points
 
-                    heat.addData points.map (p) ->
-                        lat:p.lat
-                        lon:p.lng
-                        value: p.val
+                    adjustedData = @adjustData(points)
 
+                    activeData = adjustedData
 
                     @map.addLayer(heat)
+
+                    heat.on "animationComplete", () ->
+                        if activeData == points then activeData = adjustedData
+                        else activeData = points
+                        heat.setData activeData, 10000
+
+                    heat.setData adjustedData, 10000
+
+                    sttileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-rjqv06av/{z}/{x}/{y}.png', 
+                       maxZoom: 18
+                       zIndex:100
+                    sttileLayer.addTo(@map) 
+
+
                   #  heat.redraw()
 
             @map.fitBounds [[27.7, -126.8],[45.1, -60.8]]
 
-            
+        adjustData: (data) ->
+            data.map (p) ->
+                lat: p.lat
+                lng: p.lng
+                val: if p.val > 50 then p.val - 50 else p.val + 50
 
         
