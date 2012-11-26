@@ -1,0 +1,27 @@
+<canvas id="test" width="50" height="50"></canvas>
+
+<canvas id="new" width="300" height="300"></canvas>
+
+<script>
+
+    ctx = document.getElementById("test").getContext("2d")
+    newctx = document.getElementById("new").getContext("2d")
+    
+
+    draw= function(c,x,y,a) {
+        c.shadowOffsetX = 1000;
+        c.shadowOffsetY = 1000;
+        c.shadowBlur = 15;
+        c.shadowColor = 'rgba(255,0,0,' + a + ')';
+        c.beginPath();
+        c.arc(x - 1000, y - 1000, 15, 0, Math.PI * 2, true);
+        c.closePath();
+        c.fill();
+    }
+
+    draw(ctx,25,25,1)
+    newctx.globalAlpha = 0.5
+    newctx.drawImage(document.getElementById("test"),-10,-10)
+    newctx.globalAlpha = 1
+    draw(newctx,50,50,0.5)
+</script>
