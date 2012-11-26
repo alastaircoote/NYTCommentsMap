@@ -30,7 +30,6 @@ define ["jslib/leaflet", "./heatmaptilelayer"], (leaflet,h) ->
                         if activeData == points then activeData = adjustedData
                         else activeData = points
                         heat.setData activeData, 10000
-                        
 
                     heat.setData adjustedData, 10000
 

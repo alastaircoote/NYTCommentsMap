@@ -4,8 +4,8 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
         constructor: (@layer,@canvas,point) ->
             @xy = point.multiplyBy(@layer.options.tileSize)
             @tileBounds = new L.LatLngBounds(
-                @layer._map.unproject([@xy.x-60,@xy.y+@layer.options.tileSize+60]),
-                @layer._map.unproject([@xy.x+@layer.options.tileSize+60,@xy.y-60]))
+                @layer._map.unproject([@xy.x-25,@xy.y+@layer.options.tileSize+25]),
+                @layer._map.unproject([@xy.x+@layer.options.tileSize+25,@xy.y-25]))
             @createHeatmap()
             @drawData(@layer.data)
         createHeatmap: () =>
@@ -17,7 +17,6 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
                 return @tileBounds.contains([p.lat,p.lng])
 
             convergedPoints = []
-            @newMax = 0
             @filteredPoints.forEach (p)=>
                 ll = @layer._map.project([p.lat,p.lng])
 
@@ -27,25 +26,19 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
                     count: p.val
                 existing = convergedPoints.filter (p) ->
                     p.x == newPoint.x && p.y == newPoint.y
-                ###
-                if existing.length == 1 
-                    existing[0].count += newPoint.count
-                    if existing[0].count > @newMax then @newMax = existing[0].count
-                else
-                    convergedPoints.push newPoint
-                    if newPoint.count > @newMax then @newMax = newPoint.count
-                ###
-                convergedPoints.push newPoint
+
+                if existing.length == 1 then existing[0].count += newPoint.count
+                else convergedPoints.push newPoint
+
             @filteredPoints = convergedPoints
             if @filteredPoints.length > 0
                 @setData()
         setData: () =>
             start = new Date().valueOf()
+            
             @hm.store.setDataSet
                 max:100
                 data: @filteredPoints
-        clear: () =>
-            @hm.clear()
             #console.log "draw", new Date().valueOf() - start
 
     class HeatMapLayer extends L.TileLayer.Canvas
@@ -72,8 +65,7 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
             setDataFinal = () =>
                 @data = newdata
                 for tile in @tiles
-                   tile.drawData(newdata)
-                   tile.clear()
+                   tile.drawData(newdata) 
                 this.fire("animationComplete")
                 return
 

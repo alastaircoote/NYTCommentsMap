@@ -292,27 +292,6 @@
             ctx.fillRect(0,0,1,256);
 
             me.set("gradient", ctx.getImageData(0,0,1,256).data);
-
-            var radius = me.get("radius"), shadowBlur = 15;
-            blobcanvas = document.createElement("canvas");
-            blobcanvas.width = blobcanvas.height = radius+(shadowBlur*2);
-            bctx = blobcanvas.getContext("2d")
-
-            
-
-            bctx.shadowOffsetX = 1000;
-            bctx.shadowOffsetY = 1000;
-            bctx.shadowBlur = shadowBlur;
-            bctx.shadowColor = 'rgba(0,0,0,1)'
-            //console.log(points)
-            bctx.beginPath();
-            bctx.arc((blobcanvas.width/2) - 1000, (blobcanvas.width/2) - 1000, radius, 0, Math.PI * 2, true);
-            bctx.closePath();
-            bctx.fill();
-            $("body").append(blobcanvas)
-            me.set("blobcanvas",blobcanvas)
-
-
         },
         getWidth: function(element){
             var width = element.offsetWidth;
@@ -443,7 +422,7 @@
                     bounds = me.get("bounds")
                     //xb = x - (1.5 * radius) >> 0, yb = y - (1.5 * radius) >> 0,
                     //xc = x + (1.5 * radius) >> 0, yc = y + (1.5 * radius) >> 0;
-                    blob = me.get("blobcanvas");
+
                 ctx.shadowOffsetX = 1000;
                 ctx.shadowOffsetY = 1000;
                 ctx.shadowBlur = 15;
@@ -453,21 +432,11 @@
                     var x = point.x, y = point.y, count = point.count,
                         xb = x - (1.5 * radius) >> 0, yb = y - (1.5 * radius) >> 0,
                         xc = x + (1.5 * radius) >> 0, yc = y + (1.5 * radius) >> 0;
-                    /*ctx.shadowColor = ('rgba(255,0,0,'+((count)?(count/me.store.max):'0.1')+')');
+                    ctx.shadowColor = ('rgba(255,0,0,'+((count)?(count/me.store.max):'0.1')+')');
                     ctx.beginPath();
                     ctx.arc(x - 1000, y - 1000, radius, 0, Math.PI * 2, true);
                     ctx.closePath();
-                    ctx.fill();*/
-
-                    offset = blob.width / 2
-                    test = (count/me.store.max)
-                    if (test < 0 || test > 1) {
-                        console.log (count,me.store.max,test)
-                        return
-                    }
-                    ctx.globalAlpha = ((count)?(test):0.1)
-                    ctx.drawImage(blob,x-offset,y-offset)
-
+                    ctx.fill();
 
                     if(xb < bounds["l"]){
                         bounds["l"] = xb;
