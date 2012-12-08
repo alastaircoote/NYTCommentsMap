@@ -4,6 +4,8 @@ define ["jslib/leaflet", "./heatmaplayer"], (leaflet,h) ->
             @mapEl = target
             @map = L.map @mapEl[0],
                 fadeAnimation:false
+                zoom: 2
+                center: [36.5, -42.2]
             tileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-n7irpmld/{z}/{x}/{y}.png', 
                maxZoom: 18
             tileLayer.addTo(@map)
@@ -14,7 +16,7 @@ define ["jslib/leaflet", "./heatmaplayer"], (leaflet,h) ->
                 zIndex:100
             sttileLayer.addTo(@map) 
 
-            @map.fitBounds [[27.7, -126.8],[45.1, -60.8]]
+            #@map.fitBounds [[27.7, -126.8],[45.1, -60.8]]
             return
 
             $.ajax

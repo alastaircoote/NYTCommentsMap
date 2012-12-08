@@ -11,18 +11,46 @@ requirejs.config
     paths: 
         "jquery":"jslib/jquery-1.8.0"
    
-requirejs ["./js/map/mapdisplay","js/data/unemployment","js/map/heatmaplayer", "jquery"], (MapDisplay, UnemploymentData,HeatMapLayer) ->
+requirejs ["./js/map/mapdisplay","js/data/comments","js/map/heatmaplayer", "jquery"], (MapDisplay, CommentData,HeatMapLayer) ->
     mapDisplay = new MapDisplay $("#map")
-    unemp = new UnemploymentData()
+    com = new CommentData()
 
     heatmapLayer = new HeatMapLayer();
     mapDisplay.map.addLayer(heatmapLayer);
 
-    unemp.on "loaded", () ->
-        heatmapLayer.setPoints(unemp.points)
-        heatmapLayer.setData(unemp.getNext().data)
-
+    com.on "loaded", () ->
         
+        interval = 10 * 60 * 1000 # 10 mins
+        lowIndex = 0
+        startDate = com.data[0].date
+        startMoment = new Date().valueOf()
+        multiplier = 1000
+        
+        doDraw = () ->
+            dateMoment = startDate + ((new Date().valueOf() - startMoment) * multiplier)
+            lower = dateMoment - interval
+            upper = dateMoment + interval
+
+            while com.data[lowIndex].date < lower
+                lowIndex++
+            toDraw = []
+            i = lowIndex
+            while com.data[i].date <= upper
+                d = com.data[i]
+                toDraw.push
+                    lat: d.lat
+                    lng: d.lng
+                    count: 50 - Math.abs(d.date - dateMoment)
+                i++
+
+             
+            #window.webkitRequestAnimationFrame () ->
+             #       doDraw()
+
+        window.webkitRequestAnimationFrame () ->
+             doDraw()
+
+        ###
         int = setInterval () ->
             next = unemp.getNext()
             if !next
@@ -31,6 +59,7 @@ requirejs ["./js/map/mapdisplay","js/data/unemployment","js/map/heatmaplayer", "
             console.log next.year, next.period
             heatmapLayer.setData next.data
         ,300
+        ###
 
 
 

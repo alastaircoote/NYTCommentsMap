@@ -1636,7 +1636,7 @@ L.Map = L.Class.extend({
             this.fire('movestart');
 
             if (zoomChanged) {
-                this.fire('zoomstart');
+                this.fire('zoomstart',{afterZoomAnim: afterZoomAnim});
             }
         }
 

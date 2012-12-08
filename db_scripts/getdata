@@ -1,0 +1,62 @@
+CREATE OR REPLACE FUNCTION plv8_test() RETURNS
+text AS $$
+
+avgArea = plv8.execute("SELECT avg(ST_Area(the_geom)) as area from figures \
+inner join gz on gz.area_code_int = figures.area_code \
+ where substring(series_id from 4 for 2) = 'CN' and year >= 2008")[0].area
+
+plv8.elog(NOTICE, "Average area", avgArea);
+
+areas = plv8.execute("SELECT DISTINCT area_code, ST_ASGeoJson(ST_Centroid(the_geom)) as geo, ST_Area(the_geom) as geo_area FROM figures \
+    inner join gz on gz.area_code_int = figures.area_code WHERE substring(series_id from 4 for 2) = 'CN' and year >= 2008");
+
+areasMapped = areas.map(function(area) {
+    return {
+        geo: JSON.parse(area.geo).coordinates,
+        area: area.geo_area < avgArea ? 1 :  (area.geo_area / avgArea)
+    }
+});
+
+var years = [2008, 2009, 2010, 2011, 2012];
+
+var periods = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(function(m) {
+  if (m < 10) {
+    return "M0" + m;
+  } else {
+    return "M" + m;
+  }
+});
+
+yearsReturn = {};
+/*
+var plan = plv8.prepare("SELECT cast(trim(value) as double precision) as value FROM figures WHERE year = $1 and period = $2 and area_code = $3 and substring(series_id from 4 for 2) = 'CN'");
+
+years.forEach(function(year)  {
+    periodsReturn = {};
+    periods.forEach(function(period) {
+        plv8.elog(NOTICE,"Processing ",year,period);
+        periodReturn = []
+        areas.forEach(function(area) {
+            var result = plan.execute([year,period,area.area_code]);
+            if (result.length == 0) {
+                plv8.elog(NOTICE,"FAILED ON ",year,period,area.area_code);
+                periodReturn.push(0)
+            } else {
+                periodReturn.push(result[0].value);
+            }
+        });
+        periodsReturn[period] = periodReturn;
+    });
+    yearsReturn[year] = periodsReturn;
+    
+});
+
+plan.free();
+
+
+*/
+return JSON.stringify({areas:areasMapped,data:yearsReturn});
+
+$$ LANGUAGE plv8 IMMUTABLE STRICT;
+
+COPY (SELECT plv8_test()) TO '/tmp/plv8.json';

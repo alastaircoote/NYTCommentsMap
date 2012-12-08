@@ -11,12 +11,11 @@ define ["../struct/events"], (Events) ->
 
         loadData: () =>
             $.ajax
-                url: "/TwitterMap/dummydata/plv8.json"
+                url: "/TwitterMap/dummydata/plv82.json"
                 dataType: "json"
                 success: (data) =>
                     @points = data.areas
                     @data = data.data
-                    console.log @data
                     for key,val of @data
                         @years.push key
                     @trigger "loaded"
@@ -31,7 +30,7 @@ define ["../struct/events"], (Events) ->
 
                 @periodIndex = 0
             else
-                if @periodIndex == 10 && @yearIndex == 3 then return false
+                if @periodIndex == 9 && @yearIndex == 4 then return false
                 @periodIndex++
 
             yearToGet = @years[@yearIndex]
