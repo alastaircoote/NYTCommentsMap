@@ -1,129 +1,116 @@
-define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap) ->
-    class HeatMapLayer
+define ["jslib/leaflet","./coordinate","jslib/heatmap", "./heatmaptile"], (L, Coordinate, HeatMap,HeatMapTile) ->
+    
+    class HeatMapLayer extends L.TileLayer.Canvas
+        radius:7
         constructor: (options) ->
-            bounds =
-                sw:
-                    lat:180
-                    lng:180
-                ne:
-                    lat:-180
-                    lng:-180
-
-            options.datas.forEach (data) ->
-                data.forEach (row) ->
-                    if row.lat > bounds.ne.lat then bounds.ne.lat = row.lat
-                    else if row.lat < bounds.sw.lat then bounds.sw.lat = row.lat
-
-                    if row.lng > bounds.ne.lng then bounds.ne.lng = row.lng
-                    else if row.lng < bounds.sw.lng then bounds.sw.lng = row.lng
-            console.log bounds
-            @overallBounds = bounds
-        onAdd: (map) ->
-            @map = map
-
-            #if @map.options.zoomAnimation && L.Browser.any3d 
-                #@map.on('zoomanim', @onAnimateZoom, this)
-            
-            @map.on "zoomend", @onReset, this
-            @onReset()
-  
-        onRemove: () ->
-            map.getPanes().overlayPane.removeChild(@_el[0])
-            map.off('viewreset', @onReset, this)
-
-        onReset: (e) =>
-            if @_el
-                @_el.remove()
-                @_el =null
-            #@_el.remove()
-
-            size = @map.getSize()
-            pxBounds = @map.getPixelBounds()
-
-
-            # base dimensions are 2x screen to allow people to move and still see
-            dimensions = 
-                sw:
-                    x:0- size.x
-                    y: size.y * 2
-                ne:
-                    x: size.x * 2
-                    y: 0- size.y
-
-            # extent of our data points
-            pxOverallBounds =
-                sw: @map.latLngToContainerPoint(@overallBounds.sw)
-                ne: @map.latLngToContainerPoint(@overallBounds.ne)
-
-            # shrink the canvas if we can
-            if pxOverallBounds.sw.x > dimensions.sw.x then dimensions.sw.x = pxOverallBounds.sw.x
-            if pxOverallBounds.ne.x < dimensions.ne.x then dimensions.ne.x = pxOverallBounds.ne.x
-
-            if pxOverallBounds.sw.y < dimensions.sw.y then dimensions.sw.y = pxOverallBounds.sw.y
-            if pxOverallBounds.ne.y > dimensions.ne.y then dimensions.ne.y = pxOverallBounds.ne.y
-
-           
-            test = $ "<div/>"
-                
-                css:
-                    width: dimensions.ne.x - dimensions.sw.x
-                    height: dimensions.sw.y - dimensions.ne.y
-                    top: dimensions.ne.y
-                    left: dimensions.sw.x
-                    background:"blue"
-                    opacity:0.5
-                    position: "absolute"
-
-            $(@map.getPanes().tilePane).append(test)
-            console.log test[0]
+            @tiles = []
+            @stopAnimation = false
+        drawTile: (canvas, point) ->
+            @tiles.push(new HeatMapTile(this,canvas,point))
             return
-            if !@_el
-                @_el = $ '<div/>',
-                    width: size.x# * 2
-                    height: size.y# * 2
-                    "class":"leaflet-layer"
-                    css:
-                        top: 0#-(size.y/2)
-                        left: 0#-(size.x/2)
-                        "-webkit-transition":"-webkit-transform 0.2s linear"
-                        #background:"blue"
-                        position: "absolute"
+        resetTiles: () =>
+            console.log "Resetting tiles"
+            @tiles = []
+        onAdd: (map) ->
+            map.on "zoomend", @resetTiles
+            map.on "zoomanim", @pauseDuringZoom
+            @on "load", @assignPointsToTiles
+            super(map)
+        pauseDuringZoom: () =>
+            stopAnimation = true
+            #restart = () ->
+            #     map.on "zoomend"
 
+        setPoints: (points) =>
+            @geoPoints = points.map (p) ->
+                latlng: new L.LatLng(p[1],p[0])
+            @projectAndRoundPoints()
+            @assignPointsToTiles()
+
+        projectAndRoundPoints: () =>
+            @roundedPoints = []
+            existingIndex = {}
+            @geoPoints.forEach (p) =>
+                p.point = @_map.project(p.latlng)
+
+                rounded = new L.Point((Math.round(p.point.x / @radius) * @radius),(Math.round(p.point.y / @radius) * @radius))
                 
-                #@baseDiv.append(@_el)
-                console.log @map.getPanes()
-                #@_el.insertBefore($(@map.getPanes().overlayPane).children().last())
-                $(@map.getPanes().overlayPane).append(@_el)
-                @heatmap = heatmapFactory.create
-                    element: @_el[0]
-                    radius:7
+                existing = existingIndex[rounded.x + "/" + rounded.y]
+                if existing
+                    p.roundedPoint = existing
+                else
+                    existingIndex[rounded.x + "/" + rounded.y] = p.roundedPoint = {point:rounded, value:0}
+                    @roundedPoints.push p.roundedPoint
 
-            points = @points.map((p) =>
-                    t = @map.latLngToLayerPoint([p.lat, p.lng])
-                    #console.log t
-                    x: t.x# + (size.x/2)
-                    y: t.y# + (size.y/2)
-                    count: p.val
-                    ).filter((t) -> return t.x > 0 && t.y > 0)
-            @heatmap.store.setDataSet
-                max:100
-                data: points
+        assignPointsToTiles: () =>
+            if @tiles.length == 0 || !@geoPoints then return
+            for point in @roundedPoints
+                for tile in @tiles
+                    if tile.pixelBounds.contains(point.point)
+                        point.tile = tile
+                        tile.points.push point
+                        #break
+                if !point.tile
+                    console.log "Tile assign failed"
 
-            ,false,colorize
-           
 
-        onAnimateZoom: (e) =>
-            scale = @map.getZoomScale(e.zoom)
-            bounds = @map.getBounds()
-            nw = bounds.getNorthWest()
-            se = bounds.getSouthEast()
+        setData: (data) ->
+            @roundedPoints.forEach (point) ->
+                point.value = 0
+            for value,i in data
+                @geoPoints[i].value = value
+                if @geoPoints[i].roundedPoint
+                    @geoPoints[i].roundedPoint.value += value
 
-            topLeft = @map._latLngToNewLayerPoint(nw, e.zoom, e.center)
-            size = @map._latLngToNewLayerPoint(se, e.zoom, e.center)._subtract(topLeft)
-            currentSize = @map.latLngToLayerPoint(se)._subtract(@map.latLngToLayerPoint(nw))
-            origin = topLeft._add(size._subtract(currentSize).divideBy(2))
+            @redrawAllTiles()
 
-            @_el.css L.DomUtil.TRANSFORM, L.DomUtil.getTranslateString(origin) + ' scale(' + scale + ') '
+        redrawAllTiles: () ->
+            @tiles.forEach (tile) ->
+                tile.draw()
 
+
+        setDataOld: (newdata,animationDuration) =>
+            if !animationDuration then animationDuration = -1
+            setDataFinal = () =>
+                @data = newdata
+                for tile in @tiles
+                   tile.drawData(newdata)
+                   tile.clear()
+                this.fire("animationComplete")
+                return
+
+            targetTime = new Date().valueOf() + animationDuration
+            numAnims = 0
+            mapBounds = @_map.getBounds()
+            doAnim = () =>
+                if stopAnimation
+                    stopAnimation = false
+                    return
+                diff = targetTime - new Date().valueOf()
+                if diff <= 0
+                    setDataFinal()
+                    console.log numAnims / 4 + " fps"
+                    return
+                else
+                    numAnims++
+                    adjusted = @adjustData(@data,newdata,1 - (diff / animationDuration))
+                    for tile in @tiles
+                        if mapBounds.intersects(tile.tileBounds)
+                            tile.drawData(adjusted)  
+                    window.webkitRequestAnimationFrame () ->
+                        doAnim()           
+
+            doAnim()
+          
+
+        adjustData: (from,to, factor) ->
+            ret = []
+            for point,i in from
+                #console.log i, to[i]#, point.count + ((to[i].count - point.count) * factor)
+                ret.push
+                    lat: point.lat
+                    lng: point.lng
+                    val: point.val + ((to[i].val - point.val) * factor)
+            return ret
 
             

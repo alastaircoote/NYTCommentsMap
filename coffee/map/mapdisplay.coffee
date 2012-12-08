@@ -1,4 +1,4 @@
-define ["jslib/leaflet", "./heatmaptilelayer"], (leaflet,h) ->
+define ["jslib/leaflet", "./heatmaplayer"], (leaflet,h) ->
     return class MapDisplay
         constructor: (target) ->
             @mapEl = target
@@ -8,9 +8,14 @@ define ["jslib/leaflet", "./heatmaptilelayer"], (leaflet,h) ->
                maxZoom: 18
             tileLayer.addTo(@map)
 
-             
- 
+            
+            sttileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-rjqv06av/{z}/{x}/{y}.png', 
+                maxZoom: 18
+                zIndex:100
+            sttileLayer.addTo(@map) 
 
+            @map.fitBounds [[27.7, -126.8],[45.1, -60.8]]
+            return
 
             $.ajax
                 url: "dummydata/points.json"
@@ -34,15 +39,12 @@ define ["jslib/leaflet", "./heatmaptilelayer"], (leaflet,h) ->
 
                     heat.setData adjustedData, 10000
 
-                    sttileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-rjqv06av/{z}/{x}/{y}.png', 
-                       maxZoom: 18
-                       zIndex:100
-                    sttileLayer.addTo(@map) 
+                    
 
 
                   #  heat.redraw()
 
-            @map.fitBounds [[27.7, -126.8],[45.1, -60.8]]
+            
 
         adjustData: (data) ->
             data.map (p) ->

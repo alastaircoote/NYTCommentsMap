@@ -462,8 +462,8 @@
                     offset = blob.width / 2
                     test = (count/me.store.max)
                     if (test < 0 || test > 1) {
-                        console.log (count,me.store.max,test)
-                        return
+                        //console.log (count,me.store.max,test)
+                        test = 1
                     }
                     ctx.globalAlpha = ((count)?(test):0.1)
                     ctx.drawImage(blob,x-offset,y-offset)
