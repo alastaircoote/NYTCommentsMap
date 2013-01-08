@@ -3,7 +3,7 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
     class HeatMapTile
         constructor: (@layer,@canvas,point, @radius) ->
             @xy = point.multiplyBy(@layer.options.tileSize)
-
+            @calculateBounds(@radius)
         calculateBounds:(@radius) =>
             sw = @xy.clone().subtract([(@radius*2),0]).add([0,(@radius*2)+@layer.options.tileSize])
             ne = @xy.clone().add([(@radius*2)+@layer.options.tileSize,0]).subtract([0,(@radius*2)])
@@ -25,14 +25,14 @@ define ["jslib/leaflet","./coordinate","jslib/heatmap"], (L, Coordinate, HeatMap
                 #gradient: { 0.5: "rgb(0,0,255)", 0.6: "rgb(0,255,255)", 0.7: "rgb(0,255,0)", 0.85: "yellow", 0.9: "rgb(255,0,0)"}
 
         draw: () =>
+            
             projected = @points.map (p) =>
-                x: p.point.x - @xy.x
-                y: p.point.y - @xy.y
-                areaMultiplier: 1
-                count: p.value
+                x: p.x - @xy.x
+                y: p.y - @xy.y
+                count: p.count
 
             @hm.store.setDataSet
-                max:28
+                max:50
                 data: projected
 
         roundData: (data) =>

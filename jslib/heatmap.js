@@ -293,6 +293,26 @@
 
             me.set("gradient", ctx.getImageData(0,0,1,256).data);
 
+            var radius = me.get("radius"), shadowBlur = 15;
+            blobcanvas = document.createElement("canvas");
+            blobcanvas.width = blobcanvas.height = radius+(shadowBlur*2);
+            bctx = blobcanvas.getContext("2d")
+
+            
+
+            bctx.shadowOffsetX = 1000;
+            bctx.shadowOffsetY = 1000;
+            bctx.shadowBlur = shadowBlur;
+            bctx.shadowColor = 'rgba(0,0,0,1)'
+            //console.log(points)
+            bctx.beginPath();
+            bctx.arc((blobcanvas.width/2) - 1000, (blobcanvas.width/2) - 1000, radius, 0, Math.PI * 2, true);
+            bctx.closePath();
+            bctx.fill();
+            $("body").append(blobcanvas)
+            me.set("blobcanvas",blobcanvas)
+
+
         },
         getWidth: function(element){
             var width = element.offsetWidth;
@@ -414,61 +434,31 @@
                 image.data = imageData;
                 ctx.putImageData(image, left, top);
         },
-        //radiusCanvases: {},
-        getRadiusCanvas: function(radiusMultiplier) {
-            window.radiusCanvases = window.radiusCanvases || {}
-
-            /*radiusMultiplier = (Math.round(radiusMultiplier/8)) * 8
-            if (radiusMultiplier == 0) return null*/
-            var me = this;
-            if (window.radiusCanvases[radiusMultiplier]) {
-                return window.radiusCanvases[radiusMultiplier];
-            }
-            var radius = me.get("radius") * radiusMultiplier;
-            var shadowBlur = 15 * radiusMultiplier;
-            blobcanvas = document.createElement("canvas");
-            blobcanvas.width = blobcanvas.height = radius+(shadowBlur*2);
-            bctx = blobcanvas.getContext("2d")
-
-            bctx.shadowOffsetX = 1000;
-            bctx.shadowOffsetY = 1000;
-            bctx.shadowBlur = shadowBlur;
-            bctx.shadowColor = 'rgba(0,0,0,1)'
-            //console.log(points)
-            bctx.beginPath();
-            bctx.arc((blobcanvas.width/2) - 1000, (blobcanvas.width/2) - 1000, radius, 0, Math.PI * 2, true);
-            bctx.closePath();
-            bctx.fill();
-            //$("body").append(blobcanvas)
-            window.radiusCanvases[radiusMultiplier] = blobcanvas;
-            return blobcanvas;
-        },
         drawAlphas: function(points, colorize){
                  // storing the variables because they will be often used
                 var me = this,
                     radius = me.get("radius"),
                     ctx = me.get("actx"),
                     max = me.get("max"),
-                    bounds = me.get("bounds");
+                    bounds = me.get("bounds")
                     //xb = x - (1.5 * radius) >> 0, yb = y - (1.5 * radius) >> 0,
                     //xc = x + (1.5 * radius) >> 0, yc = y + (1.5 * radius) >> 0;
-                    //blob = me.get("blobcanvas");
-                //ctx.shadowOffsetX = 1000;
-                //ctx.shadowOffsetY = 1000;
-                //ctx.shadowBlur = 15;
+                    blob = me.get("blobcanvas");
+                ctx.shadowOffsetX = 1000;
+                ctx.shadowOffsetY = 1000;
+                ctx.shadowBlur = 15;
                 //console.log(points)
                 for (var i = 0;i<points.length;i++) {
                     var point = points[i]
                     var x = point.x, y = point.y, count = point.count,
-                        xb = x - (1.5 * (radius * point.areaMultiplier)) >> 0, yb = y - (1.5 * (radius * point.areaMultiplier)) >> 0,
-                        xc = x + (1.5 * (radius * point.areaMultiplier)) >> 0, yc = y + (1.5 * (radius * point.areaMultiplier)) >> 0;
+                        xb = x - (1.5 * radius) >> 0, yb = y - (1.5 * radius) >> 0,
+                        xc = x + (1.5 * radius) >> 0, yc = y + (1.5 * radius) >> 0;
                     /*ctx.shadowColor = ('rgba(255,0,0,'+((count)?(count/me.store.max):'0.1')+')');
                     ctx.beginPath();
                     ctx.arc(x - 1000, y - 1000, radius, 0, Math.PI * 2, true);
                     ctx.closePath();
                     ctx.fill();*/
-                    blob = me.getRadiusCanvas(point.areaMultiplier)
-                    if (!blob) continue;
+
                     offset = blob.width / 2
                     test = (count/me.store.max)
                     if (test < 0 || test > 1) {

@@ -3,7 +3,7 @@ define ["../struct/events"], (Events) ->
         constructor: () ->
             super()
             $.ajax
-                url: "/TwitterMap/dummydata/commentout.json"
+                url: "commentdata/commentout.json"
                 dataType: "json"
                 success: (data) =>
                     @data = data

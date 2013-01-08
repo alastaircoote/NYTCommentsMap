@@ -5,7 +5,7 @@ define ["jslib/leaflet", "./heatmaplayer"], (leaflet,h) ->
             @map = L.map @mapEl[0],
                 fadeAnimation:false
                 zoom: 2
-                center: [36.5, -42.2]
+                center: [16.5, -3.2]
             tileLayer = L.tileLayer 'http://{s}.tiles.mapbox.com/v3/alastaircoote.map-n7irpmld/{z}/{x}/{y}.png', 
                maxZoom: 18
             tileLayer.addTo(@map)
@@ -20,7 +20,7 @@ define ["jslib/leaflet", "./heatmaplayer"], (leaflet,h) ->
             return
 
             $.ajax
-                url: "dummydata/points.json"
+                url: "commentdata/points.json"
                 success: (data) =>
                     points = JSON.parse(data)
                     
