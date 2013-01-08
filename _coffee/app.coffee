@@ -1,5 +1,5 @@
 requirejs.config
-    baseUrl: "/TwitterMap"
+    baseUrl: "/"
     shim:
         "jslib/leaflet":
             deps: ["jquery"]
