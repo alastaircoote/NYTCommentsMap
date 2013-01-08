@@ -2,7 +2,7 @@
 (function() {
 
   requirejs.config({
-    baseUrl: "/",
+    baseUrl: "/NYTCommentsMap",
     shim: {
       "jslib/leaflet": {
         deps: ["jquery"],
