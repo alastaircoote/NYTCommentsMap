@@ -50,7 +50,7 @@ requirejs ["js/map/mapdisplay","js/data/comments","js/map/heatmaplayer","js/side
         if minutes < 10
             minutes = "0" + minutes
 
-        $("h2").html("#{month}/#{day} #{hour}:#{minutes}#{suffix}")
+        $("h2").html("#{month}/#{day} #{hour}:#{minutes}#{suffix} EST")
 
     mapDisplay.map.addLayer(heatmapLayer);
 

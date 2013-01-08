@@ -399,19 +399,24 @@ h2 {
   top: 120px;
   right: 5%;
   top: 150px;
-  width: 300px;
+  width: 420px;
 }
 #sidebar p {
   padding: 0px;
   color: #ffffff;
   font-family: Helvetica;
-  font-size: 28px;
+  font-size: 24px;
   color: #cccccc;
   text-align: right;
 }
+#sidebar p a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+}
 #sidebar button {
   display: block;
-  width: 100%;
+  width: 60%;
   margin: 0 0% 0 0%;
   background: #000000;
   border: solid 1px #aaa;
@@ -420,6 +425,7 @@ h2 {
   font-size: 16px;
   padding: 10px 0;
   text-transform: uppercase;
+  float: right;
 }
 #sidebar ul {
   list-style: none;

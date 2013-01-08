@@ -46,7 +46,7 @@
       if (minutes < 10) {
         minutes = "0" + minutes;
       }
-      return $("h2").html("" + month + "/" + day + " " + hour + ":" + minutes + suffix);
+      return $("h2").html("" + month + "/" + day + " " + hour + ":" + minutes + suffix + " EST");
     });
     mapDisplay.map.addLayer(heatmapLayer);
     com.on("loaded", function() {
